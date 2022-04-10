@@ -1,6 +1,6 @@
 config = {
-    'keyword' : 'shop',
-    'image_size' : '1920x1080',
+    'keyword' : 'cat',
+    'image_size' : '2560x1440',
     'image_folder_path' : './images'
 }
 

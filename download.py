@@ -1,3 +1,4 @@
+from email.mime import image
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -6,17 +7,9 @@ import re
 import requests
 import time
 
-from actions import click_element, wait_for_image_to_load
+from actions import click_element, get_urls
 from config import config
-
-def get_urls(driver, amount):
-    image_urls = []
-    for i in range(0, 30):
-        wait_for_image_to_load(driver)
-        image_url = driver.find_element(By.XPATH, f'//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[2]/div/a/img').get_attribute('src')
-        image_urls.append(image_url)
-        click_element(driver, '//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[1]/a[4]')
-    return image_urls
+from xpaths import xpaths
 
 def download_images(image_urls, image_folder_path):
     for index, image_url in enumerate(image_urls):
@@ -31,6 +24,7 @@ binary_location = "/usr/bin/chromium-browser"
 
 options = webdriver.ChromeOptions()
 options.add_argument("--incognito")
+options.add_argument("--headless")
 options.binary_location = binary_location
 
 driver = webdriver.Chrome(executable_path=driver_location, options=options)
@@ -41,22 +35,8 @@ keyword = config['keyword']
 image_size = config['image_size']
 driver.get(f'https://www.google.com/search?q={keyword}+imagesize:{image_size}&tbm=isch')
 
-click_element(driver, f'//*[@id="islrg"]/div[1]/div[1]')
-image_urls = get_urls(driver, 30)
+click_element(driver, xpaths['first_thumbnail_image'])
+image_urls = get_urls(driver, 10)
 print(image_urls)
-# download_images(image_urls, config['image_folder_path'])
-
-
-# image_url = driver.find_element(By.XPATH, '//*[@id="islrg"]/div[1]/div[1]/a[1]').get_attribute('href')
-
-# # image_url = re.split('%2F|&',image_url)
-# # print(full_split)
-# image_url = '/'.join(re.split('%2F|&',image_url)[2:5])
-# # driver.get(f'https://{image_url}')
-# # element = driver.find_element(By.XPATH, '/html/body/img')
-# # img = element.screenshot('test.jpg')
-# img_data = requests.get(f'https://{image_url}').content
-# with open('image_name.jpg', 'wb') as handler:
-#     handler.write(img_data)
-
-# //*[@id="islrg"]/div[1]/div[9]/a[1]
+print(len(image_urls))
+download_images(image_urls, config['image_folder_path'])
