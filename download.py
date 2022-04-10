@@ -6,35 +6,21 @@ import re
 import requests
 import time
 
-from actions import _click_element
+from actions import click_element, wait_for_image_to_load
 from config import config
 
 def get_urls(driver, amount):
     image_urls = []
-    # image_url = driver.find_element(By.XPATH, f'//*[@id="islrg"]/div[1]/div[1]/a[1]').get_attribute('href')
-
-    for i in range(1, amount):
-        image_url = driver.find_element(By.XPATH, f'//*[@id="islrg"]/div[1]/div[{i}]/a[1]').get_attribute('href')
-        image_urls.append('/'.join(re.split('%2F|&',image_url)[2:5]))
-        _click_element(driver, '//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[1]/a[4]')
-
+    for i in range(0, 30):
+        wait_for_image_to_load(driver)
+        image_url = driver.find_element(By.XPATH, f'//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[2]/div/a/img').get_attribute('src')
+        image_urls.append(image_url)
+        click_element(driver, '//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[1]/a[4]')
     return image_urls
-
-    # image_urls.append('/'.join(re.split('%2F|&',image_url)[2:5]))
-    # for i in range(0, 10):
-    #     # _click_element(driver, '//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[1]/a[4]')
-    #     # driver.find_element(By.XPATH, '//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[2]/div/a/img').screenshot(f'{image_folder_path}/image_{i}.png')
-    #     print(driver.find_element(By.XPATH, '//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[2]/div/a/img').get_attribute('src'))
-    #     # image_url = driver.find_element(By.XPATH, f'//*[@id="islrg"]/div[1]/div[{image_num}]/a[1]').get_attribute('href')
-
-    #     # //*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[2]/div/a/img
-    #     # image_urls.append('/'.join(re.split('%2F|&',image_url)[2:5]))
-
-    # print(image_urls)
 
 def download_images(image_urls, image_folder_path):
     for index, image_url in enumerate(image_urls):
-        img_data = requests.get(f'https://{image_url}').content
+        img_data = requests.get(image_url).content
         site_name = image_url.split('/')[0]
         file_name = f'{site_name}_{index}.png'
         with open(f'{image_folder_path}/{file_name}', 'wb') as handler:
@@ -44,6 +30,7 @@ driver_location = "/snap/bin/chromium.chromedriver"
 binary_location = "/usr/bin/chromium-browser"
 
 options = webdriver.ChromeOptions()
+options.add_argument("--incognito")
 options.binary_location = binary_location
 
 driver = webdriver.Chrome(executable_path=driver_location, options=options)
@@ -52,11 +39,12 @@ driver.maximize_window()
 
 keyword = config['keyword'] 
 image_size = config['image_size']
-driver.get(f'https://www.google.com/search?q={keyword}+{image_size}&tbm=isch')
+driver.get(f'https://www.google.com/search?q={keyword}+imagesize:{image_size}&tbm=isch')
 
-_click_element(driver, f'//*[@id="islrg"]/div[1]/div[1]')
+click_element(driver, f'//*[@id="islrg"]/div[1]/div[1]')
 image_urls = get_urls(driver, 30)
-download_images(image_urls, config['image_folder_path'])
+print(image_urls)
+# download_images(image_urls, config['image_folder_path'])
 
 
 # image_url = driver.find_element(By.XPATH, '//*[@id="islrg"]/div[1]/div[1]/a[1]').get_attribute('href')
