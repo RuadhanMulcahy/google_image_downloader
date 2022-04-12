@@ -1,7 +1,6 @@
 config = {
     'keyword' : 'cat',
-    'image_size' : '2560x1440',
-    'image_folder_path' : './images'
+    'image_size' : '1280x720',
+    'image_folder_path' : './images',
+    'amount' : 10
 }
-
-config['keyword']

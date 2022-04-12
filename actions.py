@@ -24,9 +24,7 @@ def get_urls(driver, amount):
             image_url = driver.find_element(By.XPATH, xpaths['staged_image']).get_attribute('src')
             image_load_fail_count += 1
         if(image_url[0:5] == 'https'):
-            print(image_url)
             image_urls.append(image_url)
             amount -= 1
-            print(f'{image_url[0:5]} : {amount}')
         click_element(driver, xpaths['next_image'])
     return image_urls

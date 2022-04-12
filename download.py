@@ -1,11 +1,11 @@
 from email.mime import image
+from io import BytesIO
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-import re
 import requests
-import time
+import PIL.Image as Image
 
 from actions import click_element, get_urls
 from config import config
@@ -13,11 +13,16 @@ from xpaths import xpaths
 
 def download_images(image_urls, image_folder_path):
     for index, image_url in enumerate(image_urls):
-        img_data = requests.get(image_url).content
-        site_name = image_url.split('/')[0]
-        file_name = f'{site_name}_{index}.png'
-        with open(f'{image_folder_path}/{file_name}', 'wb') as handler:
-            handler.write(img_data)
+        # image = PIL.Image.open(BytesIO(requests.get(image_url).content))
+        response = requests.get(image_url)
+        try:
+            image = Image.open(BytesIO(response.content))
+            image.verify()
+            image.close()
+            image = Image.open(BytesIO(response.content))
+            image.save(f'{image_folder_path}/{index}.png')
+        except (IOError, SyntaxError) as e:
+            pass
 
 driver_location = "/snap/bin/chromium.chromedriver"
 binary_location = "/usr/bin/chromium-browser"
@@ -36,7 +41,5 @@ image_size = config['image_size']
 driver.get(f'https://www.google.com/search?q={keyword}+imagesize:{image_size}&tbm=isch')
 
 click_element(driver, xpaths['first_thumbnail_image'])
-image_urls = get_urls(driver, 10)
-print(image_urls)
-print(len(image_urls))
+image_urls = get_urls(driver, config['amount'])
 download_images(image_urls, config['image_folder_path'])
