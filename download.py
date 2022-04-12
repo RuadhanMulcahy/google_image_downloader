@@ -13,7 +13,6 @@ from xpaths import xpaths
 
 def download_images(image_urls, image_folder_path):
     for index, image_url in enumerate(image_urls):
-        # image = PIL.Image.open(BytesIO(requests.get(image_url).content))
         response = requests.get(image_url)
         try:
             image = Image.open(BytesIO(response.content))
